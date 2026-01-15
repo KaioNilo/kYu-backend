@@ -19,10 +19,8 @@ export interface IOrder extends Document {
   date?: Date;
   lgpd: {
     termsConsent: boolean;
-    marketingConsent: boolean;
     acceptanceDate: Date;
     userIp: string;
-    termsVersion: string;
   };
 }
 
@@ -41,18 +39,16 @@ const OrderSchema: Schema = new Schema({
   totalAmount: { type: Number, required: true },
   status: { 
     type: String, 
-    enum: ['pending_confirmation', 'service_requested', 'cancelled'], 
-    default: 'pending_confirmation' 
+    enum: ['aguardando_confirmacao', 'servico_solicitado', 'cancelado'], 
+    default: 'aguardando_confirmacao' 
   },
   notes: { type: String },
   token: { type: String, required: true, unique: true, index: true },
   date: { type: Date },
   lgpd: {
     termsConsent: { type: Boolean, required: true },
-    marketingConsent: { type: Boolean, default: false },
     acceptanceDate: { type: Date, default: Date.now },
-    userIp: { type: String },
-    termsVersion: { type: String, default: "1.0" }
+    userIp: { type: String }
   }
 }, { timestamps: true });
 
