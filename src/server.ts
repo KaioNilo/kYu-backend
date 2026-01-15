@@ -2,12 +2,14 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import orderRoutes from './routes/orderRoutes';
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api', orderRoutes);
 
 const mongoURL = process.env.MONGODB_URL as string;
 
