@@ -18,24 +18,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // --- Rotas ---
-
-// Rota base para teste
-app.get('/', (req: Request, res: Response) => {
-  res.send('API K&U rodando!');
-});
-
-// Proteção contra Spam na criação de orçamentos
-app.use('/api/orcamentos', leadLimiter);
-
-// Rotas Pública
-app.use('/api', orderRoutes);
 
 // Rota Autenticação
 app.use('/api/auth', authRoutes);
 
 // Rotas Admin Protegidas
 app.use('/api/admin', adminRoutes);
+
+// Rota base para teste
+app.get('/', (req: Request, res: Response) => {
+  res.send('API K&U rodando!');
+});
+
+// Rotas Pública
+app.use('/api/orcamentos', orderRoutes);
+
+// Proteção Spam 
+app.use('/api/orcamentos', leadLimiter);
 
 
 
