@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 import { leadLimiter } from './middleware/rateLimitMiddleware.js';
 import { errorHandler } from './middleware/errorHandlerMiddleware.js';
@@ -30,8 +31,13 @@ app.use('/api/orcamentos', leadLimiter);
 // Rotas Pública
 app.use('/api', orderRoutes);
 
+// Rota Autenticação
+app.use('/api/auth', authRoutes);
+
 // Rotas Admin Protegidas
 app.use('/api/admin', adminRoutes);
+
+
 
 // --- Conexão ao Banco de Dados ---
 const mongoURL = process.env.MONGODB_URL as string;
