@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Order from '../models/order.js';
+import Order from '../models/order';
 
 // Listar pedidos com Filtro de Busca (Nome ou E-mail)
 export const getAllOrders = async (req: Request, res: Response) => {

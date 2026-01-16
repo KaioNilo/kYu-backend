@@ -3,12 +3,12 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
-import orderRoutes from './routes/orderRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-import authRoutes from './routes/authRoutes.js';
+import orderRoutes from './routes/orderRoutes';
+import adminRoutes from './routes/adminRoutes';
+import authRoutes from './routes/authRoutes';
 
-import { leadLimiter } from './middleware/rateLimitMiddleware.js';
-import { errorHandler } from './middleware/errorHandlerMiddleware.js';
+import { leadLimiter } from './middleware/rateLimitMiddleware';
+import { errorHandler } from './middleware/errorHandlerMiddleware';
 
 dotenv.config();
 
