@@ -2,12 +2,13 @@ import { Request, Response } from 'express';
 import Order from '../models/order';
 import Service from '../models/service';
 import crypto from 'crypto';
+import { sendAdminNotification } from '../services/emailService';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const { customer, services: requestedServices, notes, lgpd } = req.body;
 
-    // Validação entrada
+    // Validação de entrada
     if (!requestedServices || !Array.isArray(requestedServices)) {
       return res.status(400).json({ error: 'A lista de serviços é obrigatória.' });
     }
@@ -16,7 +17,7 @@ export const createOrder = async (req: Request, res: Response) => {
     let hasCustomSite = false;
     const validatedServices = [];
 
-    // Busca preços BD
+    // Busca preços
     for (const item of requestedServices) {
       const officialService = await Service.findOne({ name: item.description });
       
@@ -54,7 +55,11 @@ export const createOrder = async (req: Request, res: Response) => {
       }
     });
 
+    // Salva no MongoDB
     await newOrder.save();
+
+    // Dispara notificação por e-mail
+    sendAdminNotification(newOrder); 
 
     let message = 'Orçamento gerado!';
     if (hasCustomSite) {
