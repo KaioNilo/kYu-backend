@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Order from '../models/order';
 import Service from '../models/service';
 import crypto from 'crypto';
-import { sendAdminNotification } from '../services/emailService';
+import { sendAdminNotification, sendCustomerConfirmation } from '../services/emailService'; 
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -17,7 +17,7 @@ export const createOrder = async (req: Request, res: Response) => {
     let hasCustomSite = false;
     const validatedServices = [];
 
-    // Busca preços
+    // Busca preços 
     for (const item of requestedServices) {
       const officialService = await Service.findOne({ name: item.description });
       
@@ -58,8 +58,9 @@ export const createOrder = async (req: Request, res: Response) => {
     // Salva no MongoDB
     await newOrder.save();
 
-    // Dispara notificação por e-mail
+    // Dispara as notificações por e-mail
     sendAdminNotification(newOrder); 
+    sendCustomerConfirmation(newOrder); 
 
     let message = 'Orçamento gerado!';
     if (hasCustomSite) {
