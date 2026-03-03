@@ -9,11 +9,10 @@ import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import authRoutes from './routes/authRoutes';
 
-// Middlewares
+//Middlewares
 import { leadLimiter } from './middleware/rateLimitMiddleware';
 import { errorHandler } from './middleware/errorHandlerMiddleware';
 
-// Configuração das variáveis de ambiente
 dotenv.config();
 
 const app = express();
@@ -24,7 +23,13 @@ const app = express();
 app.use(helmet()); 
 
 // CORS
-app.use(cors());
+const corsOptions = {
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true 
+};
+app.use(cors(corsOptions));
 
 // JSON Parser
 app.use(express.json());
@@ -32,18 +37,18 @@ app.use(express.json());
 
 // Rotas
 
-// Rota base para verificação de saúde da API
+// Teste de conexão
 app.get('/', (req: Request, res: Response) => {
-  res.send('API K&U rodando!');
+  res.send('API K&U rodando, protegida e com CORS configurado!');
 });
 
-// Rota de Autenticação
+// Autenticação
 app.use('/api/auth', authRoutes);
 
-// Rotas de Orçamentos
+// Orçamentos
 app.use('/api/orcamentos', leadLimiter, orderRoutes);
 
-// Rotas Admin
+// Admin
 app.use('/api/admin', adminRoutes);
 
 
@@ -59,8 +64,9 @@ mongoose.connect(mongoURL)
 app.use(errorHandler);
 
 
-// Inicialização do Servidor
+// Inicialização
 const PORT = Number(process.env.PORT) || 3001; 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🔗 CORS habilitado para: http://localhost:3000`);
 });
