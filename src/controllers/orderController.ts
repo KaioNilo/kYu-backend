@@ -3,21 +3,29 @@ import Order from '../models/order';
 import Service from '../models/service';
 import crypto from 'crypto';
 import { sendAdminNotification, sendCustomerConfirmation } from '../services/emailService'; 
+import { createOrderSchema } from '../schemas/orderSchema';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { customer, services: requestedServices, notes, lgpd } = req.body;
+    // Validação robusta
+    const validation = createOrderSchema.safeParse(req.body);
 
-    // Validação de entrada
-    if (!requestedServices || !Array.isArray(requestedServices)) {
-      return res.status(400).json({ error: 'A lista de serviços é obrigatória.' });
+    // Se a validação falhar, retorna os erros detalhados
+    if (!validation.success) {
+      return res.status(400).json({ 
+        error: "Dados de formulário inválidos", 
+        details: validation.error.format() 
+      });
     }
+
+    // Dados validados e tipados automaticamente
+    const { customer, services: requestedServices, notes, lgpd } = validation.data;
 
     let totalAmount = 0;
     let hasCustomSite = false;
     const validatedServices = [];
 
-    // Busca preços 
+    // Busca preços no BD
     for (const item of requestedServices) {
       const officialService = await Service.findOne({ name: item.description });
       
@@ -58,7 +66,7 @@ export const createOrder = async (req: Request, res: Response) => {
     // Salva no MongoDB
     await newOrder.save();
 
-    // Dispara as notificações por e-mail
+    // Dispara as notificações por e-mail (Admin e Cliente)
     sendAdminNotification(newOrder); 
     sendCustomerConfirmation(newOrder); 
 
