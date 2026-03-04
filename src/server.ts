@@ -4,12 +4,10 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
 
-// Rotas
 import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import authRoutes from './routes/authRoutes';
 
-//Middlewares
 import { leadLimiter } from './middleware/rateLimitMiddleware';
 import { errorHandler } from './middleware/errorHandlerMiddleware';
 
@@ -18,55 +16,36 @@ dotenv.config();
 const app = express();
 
 // Middlewares Globais
-
-// Helmet
-app.use(helmet()); 
-
-// CORS
-const corsOptions = {
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true 
-};
-app.use(cors(corsOptions));
-
-// JSON Parser
-app.use(express.json());
-
+app.use(helmet()); // Blindagem de cabeçalhos
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json()); //
 
 // Rotas
 
-// Teste de conexão
+app.use('/api/auth', authRoutes); //
+app.use('/api/admin', adminRoutes); //
+
 app.get('/', (req: Request, res: Response) => {
-  res.send('API K&U rodando, protegida e com CORS configurado!');
+  res.send('API K&U rodando e integrada ao n8n!');
 });
 
-// Autenticação
-app.use('/api/auth', authRoutes);
-
-// Orçamentos
+// Rate Limit rota pública
 app.use('/api/orcamentos', leadLimiter, orderRoutes);
-
-// Admin
-app.use('/api/admin', adminRoutes);
-
 
 // Conexão BD
 const mongoURL = process.env.MONGODB_URL as string;
 
 mongoose.connect(mongoURL)
-  .then(() => console.log('✅ MongoDB conectado com sucesso!'))
+  .then(() => console.log('✅ MongoDB conectado com sucesso!')) //
   .catch((err) => console.error('❌ Erro ao conectar ao MongoDB:', err));
 
-
-// Tratamento de Erros Global
+// Tratamento de Erros
 app.use(errorHandler);
 
-
-// Inicialização
-const PORT = Number(process.env.PORT) || 3001; 
+const PORT = Number(process.env.PORT) || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`🔗 CORS habilitado para: http://localhost:3000`);
 });
