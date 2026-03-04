@@ -1,22 +1,22 @@
 import { Request, Response } from 'express';
-import axios from 'axios';
 import Order from '../models/order';
 import Service from '../models/service';
 import crypto from 'crypto';
+import { sendAdminNotification, sendCustomerConfirmation } from '../services/emailService'; 
 import { createOrderSchema } from '../schemas/orderSchema';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const validation = createOrderSchema.safeParse(req.body); 
+    const validation = createOrderSchema.safeParse(req.body);
 
     if (!validation.success) {
       return res.status(400).json({ 
         error: "Dados de formulário inválidos", 
         details: validation.error.format() 
-      }); 
+      });
     }
 
-    const { customer, services: requestedServices, notes, lgpd } = validation.data; //
+    const { customer, services: requestedServices, notes, lgpd } = validation.data;
 
     let totalAmount = 0;
     let hasCustomSite = false;
@@ -53,28 +53,13 @@ export const createOrder = async (req: Request, res: Response) => {
       totalAmount,
       notes,
       token,
-      lgpd: { 
-        ...lgpd, 
-        userIp: req.ip || '0.0.0.0' 
-      }
+      lgpd: { ...lgpd, userIp: req.ip || '0.0.0.0' }
     });
 
-    await newOrder.save(); // Salva no MongoDB
+    await newOrder.save();
 
-    // INTEGRAÇÃO N8N
-    const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
-
-    if (n8nWebhookUrl) {
-      axios.post(n8nWebhookUrl, {
-        event: "new_order",
-        orderId: newOrder._id,
-        customer: newOrder.customer,
-        services: newOrder.services,
-        totalAmount: newOrder.totalAmount,
-        notes: newOrder.notes,
-        createdAt: new Date().toISOString()
-      }).catch(err => console.error("⚠️ Erro ao enviar para o n8n:", err.message));
-    }
+    sendAdminNotification(newOrder); 
+    sendCustomerConfirmation(newOrder);
 
     let message = 'Orçamento gerado!';
     if (hasCustomSite) {
@@ -86,5 +71,5 @@ export const createOrder = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("ERRO NO CONTROLLER:", error);
     res.status(500).json({ error: 'Erro interno ao processar orçamento.' });
-  } 
+  }
 };
