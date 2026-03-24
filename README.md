@@ -1,14 +1,18 @@
-# Orçamento API 🚀
+⚙️ Kyu API (Backend)
+Descrição
+Servidor Node.js responsável pelo processamento de formulários, automação de cálculos (como frete) e armazenamento de leads.
 
-Este repositório contém o backend do sistema de solicitações de orçamento.
+🛠️ Tecnologias
+Node.js: Ambiente de execução.
 
-## 🛠 Tecnologias
-- **Node.js** com Express
-- **MongoDB** com Mongoose
-- **Nodemailer** (Notificações por e-mail)
-- **Crypto** (Tokens de segurança)
+Express: Framework para rotas e middlewares.
 
-## 🔒 Diferenciais Técnicos
-- Registro de consentimento LGPD (IP, data e versão dos termos).
-- Fluxo de conversão via token de confirmação.
-- Cálculo automático de orçamentos no servidor.
+Axios: Integração com APIs externas (Shipping/Mail).
+
+CORS: Configurado para permitir comunicações seguras com o domínio da Vercel.
+
+🔌 Endpoints Principais
+POST /leads: Captura e validação de dados do formulário de contato.
+
+GET /shipping: Cálculo automatizado de frete integrando APIs de logística.
+
